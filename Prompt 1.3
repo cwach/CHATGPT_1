@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mitglieder-Login</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="login-container">
+    <h2>Mitglieder-Login</h2>
+    <form id="loginForm">
+      <input type="text" id="username" placeholder="Benutzername" required />
+      <input type="password" id="password" placeholder="Passwort" required />
+      <button type="submit">Login</button>
+      <p id="errorMsg" class="error"></p>
+    </form>
+  </div>
+ 
+  <script src="script.js"></script>
+</body>
+</html>
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f2f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+ 
+.login-container {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 300px;
+  text-align: center;
+}
+ 
+input {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+ 
+button {
+  width: 100%;
+  padding: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+ 
+button:hover {
+  background: #0056b3;
+}
+ 
+.error {
+  color: red;
+  margin-top: 10px;
+}
+
+
+const loginForm = document.getElementById("loginForm");
+const errorMsg = document.getElementById("errorMsg");
+ 
+// Beispiel-Benutzer (fest kodiert – nur für Demos!)
+const validUser = {
+  username: "mitglied",
+  password: "passwort123"
+};
+ 
+loginForm.addEventListener("submit", function (e) {
+  e.preventDefault(); // Verhindert Seitenreload
+ 
+  const enteredUsername = document.getElementById("username").value;
+  const enteredPassword = document.getElementById("password").value;
+ 
+  if (
+    enteredUsername === validUser.username &&
+    enteredPassword === validUser.password
+  ) {
+    // Erfolgreicher Login
+    window.location.href = "mitgliedsbereich.html"; // Weiterleitung
+  } else {
+    // Fehlerhafte Eingabe
+    errorMsg.textContent = "Benutzername oder Passwort ist falsch.";
+  }
+});
