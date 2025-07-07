@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Datei-Upload</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 2rem; }
+    #uploadForm { border: 1px solid #ccc; padding: 1rem; width: 300px; }
+  </style>
+</head>
+<body>
+  <h2>Datei hochladen</h2>
+  <form id="uploadForm">
+    <input type="file" id="fileInput" name="file" accept=".png,.jpg,.jpeg,.pdf" required />
+    <br><br>
+    <button type="submit">Hochladen</button>
+  </form>
+  <div id="status"></div>
+
+  <script>
+    const form = document.getElementById("uploadForm");
+    const statusDiv = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById("fileInput");
+      const file = fileInput.files[0];
+
+      if (!file) return;
+
+      // Optional: Zusätzliche Client-seitige Validierung
+      const allowedTypes = ['image/png', 'image/jpeg', 'application/pdf'];
+      if (!allowedTypes.includes(file.type)) {
+        statusDiv.innerText = "Ungültiger Dateityp!";
+        return;
+      }
+
+      if (file.size > 5 * 1024 * 1024) { // 5MB Limit
+        statusDiv.innerText = "Datei zu groß (max. 5MB)";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch("/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        const result = await res.json();
+        statusDiv.innerText = result.message;
+      } catch (err) {
+        statusDiv.innerText = "Fehler beim Hochladen.";
+      }
+    });
+  </script>
+</body>
+</html>
