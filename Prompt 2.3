@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Mitglieder-Login</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial; padding: 2rem; background: #f4f4f4; }
+    .login-container {
+      max-width: 400px;
+      margin: auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="email"], input[type="password"] {
+      width: 100%; padding: 0.75rem; margin: 0.5rem 0;
+    }
+    button { padding: 0.75rem; width: 100%; }
+    .error { color: red; }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h2>Mitglieder-Login</h2>
+    <form id="loginForm">
+      <input type="email" id="email" placeholder="E-Mail" required />
+      <input type="password" id="password" placeholder="Passwort" required />
+      <button type="submit">Anmelden</button>
+      <p class="error" id="errorMsg"></p>
+    </form>
+  </div>
+ 
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+ 
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-Token": getCSRFToken() // Optional: CSRF Token Handling
+          },
+          body: JSON.stringify({ email, password })
+        });
+ 
+        const data = await res.json();
+ 
+        if (res.ok) {
+          // Erfolg: Weiterleitung oder Token speichern
+          sessionStorage.setItem("accessToken", data.token);
+          window.location.href = "/dashboard";
+        } else {
+          document.getElementById("errorMsg").textContent = data.message || "Anmeldung fehlgeschlagen";
+        }
+      } catch (err) {
+        console.error(err);
+        document.getElementById("errorMsg").textContent = "Ein Fehler ist aufgetreten.";
+      }
+    });
+ 
+    function getCSRFToken() {
+      // Beispiel: Lies das Token aus einem sicheren Cookie oder <meta>-Tag
+      const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+      return tokenMeta ? tokenMeta.getAttribute("content") : "";
+    }
+  </script>
+</body>
+</html>
+
+// Beispiel: login.js (Express Route)
+const express = require('express');
+const router = express.Router();
+const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+ 
+// Datenbank-Zugriff simuliert
+const mockUserDB = {
+  'user@example.com': {
+    passwordHash: '$2b$10$abc...', // bcrypt-Hash
+    id: 1,
+    role: 'member'
+  }
+};
+ 
+router.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  const user = mockUserDB[email];
+ 
+  if (!user) return res.status(401).json({ message: 'Ungültige Anmeldedaten' });
+ 
+  const valid = await bcrypt.compare(password, user.passwordHash);
+  if (!valid) return res.status(401).json({ message: 'Falsches Passwort' });
+ 
+  // JWT generieren
+  const token = jwt.sign({ id: user.id, email, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
+ 
+  res.json({ token });
+});
+ 
+module.exports = router;
