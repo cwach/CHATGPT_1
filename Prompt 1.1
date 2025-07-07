@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Datei-Upload</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 30px;
+      background-color: #f4f4f4;
+    }
+ 
+    .upload-area {
+      border: 2px dashed #ccc;
+      border-radius: 10px;
+      padding: 40px;
+      text-align: center;
+      background-color: #fff;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+ 
+    .upload-area.dragover {
+      border-color: #3f51b5;
+      background-color: #e8eaf6;
+    }
+ 
+    #fileInput {
+      display: none;
+    }
+ 
+    .file-info {
+      margin-top: 15px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+ 
+  <div class="upload-area" id="uploadArea">
+    <p>📁 Datei hierher ziehen oder klicken zum Hochladen</p>
+    <input type="file" id="fileInput" />
+    <div class="file-info" id="fileInfo">Keine Datei ausgewählt</div>
+  </div>
+ 
+  <script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const fileInfo = document.getElementById('fileInfo');
+ 
+    // Klick auf Bereich öffnet Dateiauswahl
+    uploadArea.addEventListener('click', () => fileInput.click());
+ 
+    // Datei über Input ausgewählt
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      showFileInfo(file);
+    });
+ 
+    // Drag & Drop Events
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+ 
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+ 
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+ 
+      const file = e.dataTransfer.files[0];
+      fileInput.files = e.dataTransfer.files; // Für späteren Zugriff
+      showFileInfo(file);
+    });
+ 
+    function showFileInfo(file) {
+      if (file) {
+        fileInfo.textContent = `Ausgewählte Datei: ${file.name} (${Math.round(file.size / 1024)} KB)`;
+      } else {
+        fileInfo.textContent = 'Keine Datei ausgewählt';
+      }
+    }
+  </script>
+ 
+</body>
+</html>
+
